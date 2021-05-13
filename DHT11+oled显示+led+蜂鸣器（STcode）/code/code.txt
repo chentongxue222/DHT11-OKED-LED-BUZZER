@@ -1,0 +1,49 @@
+#include <DHT.h>                            //引入<DHT.h>头文件
+#include "U8glib.h"                         //引入Oled头文件
+U8GLIB_SH1106_128X64 u8g(U8G_I2C_OPT_NONE); //设置通讯方式为IIC通讯
+#define DHTPIN 8                            //湿度传感器OUT接8号口
+#define DHTTYPE DHT11                       //定义DHT11传感器
+DHT dht(DHTPIN, DHTTYPE);                   //定义湿度传感器OUT与8号口连接并且读取温湿度传感器的数值
+int potPin = 1; //定义模拟接口1 连接LM35 温度传感器
+int val;//定义变量
+int dat;//定义变量
+void setup()
+{
+  Serial.begin(9600); //串口波特率
+}
+
+void loop()
+{
+  get_temp();           //获得温度子函数
+  dis_play();                //oled显示数据子函数
+  
+}
+
+void get_temp()             //获取温度数据子函数
+{
+	val=analogRead(potPin);// 读取传感器的模拟值并赋值给val
+	dat=(125*val)>>8;//温度计算公式
+	Serial.print("temperature is");//原样输出显示Tep 字符串代表温度
+	Serial.println(dat);//输出显示dat 的值
+}
+
+void dis_play()              //OLED数据显示子函数
+{
+  u8g.firstPage(); //  OLED首页
+  do
+  {
+    char buffer1[1]; //定义字符buffer1
+        //  将int转为char显示出来
+    itoa(dat, buffer1, 10);        //10：10进制显示
+    u8g.setFont(u8g_font_gdr10r); //设置字体
+    u8g.drawStr(25, 26, "Temp:"); //第26行25列显示“Temp：”
+    u8g.drawStr(70, 26, buffer1); //第26行70列显示温度数据
+  } while (u8g.nextPage());       //执行配置
+}
+
+
+
+
+
+
+
